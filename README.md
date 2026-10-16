@@ -174,6 +174,8 @@ Detalhes de cada campo estão no [dicionário de dados](docs/dicionario-de-dados
 
 ### Com Docker
 
+> **Aviso:** os scripts SQL e a API foram testados no MariaDB 13.0 instalado localmente (Windows). Os comandos Docker abaixo seguem a documentação oficial da imagem `mariadb`, mas **ainda não foram testados**. Se algum falhar, use a opção [com o MariaDB instalado na máquina](#com-o-mariadb-instalado-na-máquina).
+
 Suba um MariaDB:
 
 ```bash
