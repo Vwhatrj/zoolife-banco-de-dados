@@ -1,0 +1,8 @@
+fastapi==0.143.2
+uvicorn[standard]==0.54.0
+PyMySQL==1.2.3
+python-dotenv==1.2.4
+
+# testes
+pytest==9.1.1
+httpx2==2.13.1

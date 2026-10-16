@@ -2,21 +2,27 @@
 
 Modelagem e implementação, em MariaDB, do banco de dados de uma rede de clínicas veterinárias com matriz e filiais. O banco `clinica` tem 12 tabelas e cobre clientes e seus animais, veterinários, funcionários, consultas, exames, receitas, estoque de medicamentos, vacinação e pagamentos.
 
+Sobre o banco roda uma **API REST em Python (FastAPI)**, na pasta [`api/`](api/README.md), com documentação interativa e testes automatizados.
+
 ## Sobre o projeto
 
 Projeto acadêmico desenvolvido em grupo na disciplina de Modelagem e Implementação de Banco de Dados com SQL (UVA). Minha contribuição: o minimundo, o dicionário de dados e os conceitos do projeto, o apoio no cadastramento dos dados e na finalização no MariaDB, e a organização e publicação deste repositório.
 
+A API REST da pasta `api/` é uma extensão individual, feita depois da disciplina.
+
 ## Tecnologias
 
-- **MariaDB** (scripts testados no MariaDB 13.0; os comandos Docker abaixo usam a imagem `mariadb:11.4`)
+- **MariaDB 13.0** (versão em que os scripts foram testados; o exemplo com Docker usa a mesma versão)
 - **SQL**: DDL (`CREATE TABLE`, chaves primárias e estrangeiras, `UNIQUE`, `ENUM`) e DML (`INSERT`, `SELECT`, `UPDATE`, `DELETE`)
 - **Docker**, opcional, para subir o banco sem instalar nada
+- **Python 3.13 + FastAPI + PyMySQL**, para a API REST, com testes em **pytest**
 
 ## Estrutura do repositório
 
 ```
 zoolife-banco-de-dados/
 ├── README.md
+├── api/                       # API REST em FastAPI (veja api/README.md)
 ├── sql/
 │   ├── 01_schema.sql          # cria o banco `clinica` e as 12 tabelas
 │   ├── 02_dados_exemplo.sql   # 10 registros fictícios por tabela
@@ -170,7 +176,7 @@ Detalhes de cada campo estão no [dicionário de dados](docs/dicionario-de-dados
 Suba um MariaDB:
 
 ```bash
-docker run -d --name zoolife-db -e MARIADB_ROOT_PASSWORD=zoolife -p 3306:3306 mariadb:11.4
+docker run -d --name zoolife-db -e MARIADB_ROOT_PASSWORD=zoolife -p 3306:3306 mariadb:13.0
 ```
 
 Espere alguns segundos para o banco iniciar e rode os scripts em ordem.
