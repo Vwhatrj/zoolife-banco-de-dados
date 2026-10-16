@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.auth import usuario_atual
 from app.db import get_db
+from app.respostas import CLIENTE_NAO_ENCONTRADO, CPF_DUPLICADO, SEM_LOGIN, TEM_DEPENDENTES
 from app.schemas import Cliente, ClienteCriar, ClienteDetalhe, ClienteIn
 
 router = APIRouter(prefix="/clientes", tags=["Clientes"])
@@ -25,7 +26,8 @@ def listar(nome: str | None = None, db=Depends(get_db)):
         return cur.fetchall()
 
 
-@router.get("/{cpf}", response_model=ClienteDetalhe, summary="Detalha um cliente")
+@router.get("/{cpf}", response_model=ClienteDetalhe, summary="Detalha um cliente",
+            responses=CLIENTE_NAO_ENCONTRADO)
 def obter(cpf: str, db=Depends(get_db)):
     """Retorna o cliente com seus telefones e animais."""
     with db.cursor() as cur:
@@ -45,7 +47,7 @@ def obter(cpf: str, db=Depends(get_db)):
 
 
 @router.post("", response_model=Cliente, status_code=status.HTTP_201_CREATED, summary="Cadastra um cliente",
-             dependencies=LOGIN)
+             dependencies=LOGIN, responses={**SEM_LOGIN, **CPF_DUPLICADO})
 def criar(dados: ClienteCriar, db=Depends(get_db)):
     """Cadastra um cliente. CPF repetido retorna 409."""
     with db.cursor() as cur:
@@ -58,7 +60,8 @@ def criar(dados: ClienteCriar, db=Depends(get_db)):
     return dados
 
 
-@router.put("/{cpf}", response_model=Cliente, summary="Atualiza um cliente", dependencies=LOGIN)
+@router.put("/{cpf}", response_model=Cliente, summary="Atualiza um cliente",
+            dependencies=LOGIN, responses={**SEM_LOGIN, **CLIENTE_NAO_ENCONTRADO})
 def atualizar(cpf: str, dados: ClienteIn, db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute("SELECT 1 FROM cliente WHERE CPF = %s", (cpf,))
@@ -74,7 +77,7 @@ def atualizar(cpf: str, dados: ClienteIn, db=Depends(get_db)):
 
 
 @router.delete("/{cpf}", status_code=status.HTTP_204_NO_CONTENT, summary="Remove um cliente",
-               dependencies=LOGIN)
+               dependencies=LOGIN, responses={**SEM_LOGIN, **CLIENTE_NAO_ENCONTRADO, **TEM_DEPENDENTES})
 def remover(cpf: str, db=Depends(get_db)):
     """Remove um cliente. Se ele ainda tiver animais ou telefones, retorna 409:
     a chave estrangeira do banco impede deixar registros órfãos."""

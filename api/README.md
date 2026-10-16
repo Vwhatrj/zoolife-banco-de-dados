@@ -8,7 +8,7 @@ API REST em **Python + FastAPI** sobre o banco de dados [`clinica`](../README.md
 - **PyMySQL**: conexão com o MariaDB, com SQL escrito à mão e sempre parametrizado (`%s`), o que impede SQL injection
 - **Pydantic**: modelos de entrada e saída, com validação (ex.: CPF com 11 dígitos, sexo `F`/`M`)
 - **JWT (PyJWT) + Argon2 (pwdlib)**: login com token e senhas guardadas só como hash
-- **pytest**: 26 testes de integração contra o banco real
+- **pytest**: 27 testes de integração contra o banco real
 
 ## Rotas
 
@@ -154,6 +154,7 @@ api/
 │   ├── auth.py           # login, geração e validação do token JWT
 │   ├── criar_usuario.py  # comando para criar usuários de login
 │   ├── db.py             # conexão com o MariaDB (lê o .env)
+│   ├── respostas.py      # erros 401/404/409 documentados no /docs
 │   ├── schemas.py        # modelos Pydantic de entrada e saída
 │   └── routers/          # uma rota por assunto
 │       ├── clientes.py
@@ -161,7 +162,7 @@ api/
 │       ├── veterinarios.py
 │       ├── consultas.py
 │       └── relatorios.py
-├── tests/test_api.py     # 26 testes de integração
+├── tests/test_api.py     # 27 testes de integração
 ├── requirements.txt
 └── .env.example
 ```

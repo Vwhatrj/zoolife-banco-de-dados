@@ -19,6 +19,7 @@ from pwdlib import PasswordHash
 from pydantic import BaseModel
 
 from app.db import get_db
+from app.respostas import LOGIN_INVALIDO, SEM_LOGIN
 
 JWT_SECRET = os.environ["JWT_SECRET"]
 JWT_ALGORITMO = "HS256"
@@ -70,7 +71,8 @@ def usuario_atual(token: Annotated[str, Depends(oauth2)]) -> Usuario:
     return Usuario(usuario=usuario)
 
 
-@router.post("/token", response_model=Token, summary="Login: troca usuário e senha por um token")
+@router.post("/token", response_model=Token, summary="Login: troca usuário e senha por um token",
+             responses=LOGIN_INVALIDO)
 def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute("SELECT senha_hash FROM usuario_api WHERE usuario = %s", (form.username,))
@@ -85,6 +87,6 @@ def login(form: Annotated[OAuth2PasswordRequestForm, Depends()], db=Depends(get_
     return Token(access_token=criar_token(form.username), expira_em_minutos=JWT_EXPIRA_MINUTOS)
 
 
-@router.get("/me", response_model=Usuario, summary="Mostra quem está logado")
+@router.get("/me", response_model=Usuario, summary="Mostra quem está logado", responses=SEM_LOGIN)
 def eu(usuario: Annotated[Usuario, Depends(usuario_atual)]):
     return usuario

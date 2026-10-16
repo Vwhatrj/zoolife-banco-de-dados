@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.auth import usuario_atual
 from app.db import get_db
+from app.respostas import ANIMAL_NAO_ENCONTRADO, REFERENCIA_INVALIDA, SEM_LOGIN
 from app.schemas import Animal, AnimalIn
 
 router = APIRouter(prefix="/animais", tags=["Animais"])
@@ -25,7 +26,8 @@ def listar(especie: str | None = None, db=Depends(get_db)):
         return cur.fetchall()
 
 
-@router.get("/{animal_id}", response_model=Animal, summary="Detalha um animal")
+@router.get("/{animal_id}", response_model=Animal, summary="Detalha um animal",
+            responses=ANIMAL_NAO_ENCONTRADO)
 def obter(animal_id: int, db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute(f"SELECT {COLUNAS} FROM animal WHERE Animal_ID = %s", (animal_id,))
@@ -36,7 +38,7 @@ def obter(animal_id: int, db=Depends(get_db)):
 
 
 @router.post("", response_model=Animal, status_code=status.HTTP_201_CREATED, summary="Cadastra um animal",
-             dependencies=LOGIN)
+             dependencies=LOGIN, responses={**SEM_LOGIN, **REFERENCIA_INVALIDA})
 def criar(dados: AnimalIn, db=Depends(get_db)):
     """Cadastra um animal. Se o `dono_cpf` não existir, retorna 409 (chave estrangeira)."""
     with db.cursor() as cur:

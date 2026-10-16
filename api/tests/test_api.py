@@ -213,3 +213,22 @@ def test_token_falsificado_retorna_401():
 
 def test_me_mostra_usuario_logado():
     assert client.get("/auth/me").json() == {"usuario": USUARIO_TESTE}
+
+
+# ---------- documentação (/docs) ----------
+def test_docs_anunciam_os_erros_de_cada_rota():
+    """Toda rota que exige login documenta o 401, e as que podem dar 404/409 também."""
+    caminhos = anonimo.get("/openapi.json").json()["paths"]
+
+    def codigos(rota, metodo):
+        return set(caminhos[rota][metodo]["responses"])
+
+    protegidas = [("/clientes", "post"), ("/clientes/{cpf}", "put"), ("/clientes/{cpf}", "delete"),
+                  ("/animais", "post"), ("/consultas", "post"), ("/auth/me", "get")]
+    for rota, metodo in protegidas:
+        assert "401" in codigos(rota, metodo), f"{metodo.upper()} {rota} não documenta o 401"
+
+    assert {"401", "404", "409"} <= codigos("/clientes/{cpf}", "delete")
+    assert "409" in codigos("/clientes", "post")
+    assert "404" in codigos("/consultas/{consulta_id}", "get")
+    assert "401" in codigos("/auth/token", "post")

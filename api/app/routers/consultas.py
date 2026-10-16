@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.auth import usuario_atual
 from app.db import get_db
+from app.respostas import CONSULTA_NAO_ENCONTRADA, REFERENCIA_INVALIDA, SEM_LOGIN
 from app.schemas import Consulta, ConsultaDetalhe, ConsultaIn
 
 router = APIRouter(prefix="/consultas", tags=["Consultas"])
@@ -36,7 +37,8 @@ def listar(data: date | None = None, db=Depends(get_db)):
         return cur.fetchall()
 
 
-@router.get("/{consulta_id}", response_model=ConsultaDetalhe, summary="Prontuário de uma consulta")
+@router.get("/{consulta_id}", response_model=ConsultaDetalhe, summary="Prontuário de uma consulta",
+            responses=CONSULTA_NAO_ENCONTRADA)
 def obter(consulta_id: int, db=Depends(get_db)):
     """Retorna a consulta com os exames, as receitas e o pagamento."""
     with db.cursor() as cur:
@@ -70,7 +72,7 @@ def obter(consulta_id: int, db=Depends(get_db)):
 
 
 @router.post("", response_model=Consulta, status_code=status.HTTP_201_CREATED, summary="Agenda uma consulta",
-             dependencies=LOGIN)
+             dependencies=LOGIN, responses={**SEM_LOGIN, **REFERENCIA_INVALIDA})
 def criar(dados: ConsultaIn, db=Depends(get_db)):
     """Agenda uma consulta. Animal ou veterinário inexistente retorna 409."""
     with db.cursor() as cur:
