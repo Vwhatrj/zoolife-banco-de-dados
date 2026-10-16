@@ -8,14 +8,20 @@ import pymysql
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
+from app import auth
 from app.routers import animais, clientes, consultas, relatorios, veterinarios
 
 app = FastAPI(
     title="Zoolife API",
-    description="API REST sobre o banco de dados da rede de clínicas veterinárias Zoolife (MariaDB).",
-    version="1.0.0",
+    description=(
+        "API REST sobre o banco de dados da rede de clínicas veterinárias Zoolife (MariaDB).\n\n"
+        "**Leitura (GET) é aberta. Cadastrar, alterar e remover exigem login:** "
+        "use o botão **Authorize** com usuário e senha."
+    ),
+    version="1.1.0",
 )
 
+app.include_router(auth.router)
 app.include_router(clientes.router)
 app.include_router(animais.router)
 app.include_router(veterinarios.router)

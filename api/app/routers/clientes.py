@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
+from app.auth import usuario_atual
 from app.db import get_db
 from app.schemas import Cliente, ClienteCriar, ClienteDetalhe, ClienteIn
 
 router = APIRouter(prefix="/clientes", tags=["Clientes"])
+LOGIN = [Depends(usuario_atual)]  # rotas de escrita exigem token
 
 COLUNAS = """CPF AS cpf, Nome_Cli AS nome, email, End_DESC AS endereco,
              End_CEP AS cep, Nome_Ani AS nome_animal"""
@@ -42,7 +44,8 @@ def obter(cpf: str, db=Depends(get_db)):
     return cliente
 
 
-@router.post("", response_model=Cliente, status_code=status.HTTP_201_CREATED, summary="Cadastra um cliente")
+@router.post("", response_model=Cliente, status_code=status.HTTP_201_CREATED, summary="Cadastra um cliente",
+             dependencies=LOGIN)
 def criar(dados: ClienteCriar, db=Depends(get_db)):
     """Cadastra um cliente. CPF repetido retorna 409."""
     with db.cursor() as cur:
@@ -55,7 +58,7 @@ def criar(dados: ClienteCriar, db=Depends(get_db)):
     return dados
 
 
-@router.put("/{cpf}", response_model=Cliente, summary="Atualiza um cliente")
+@router.put("/{cpf}", response_model=Cliente, summary="Atualiza um cliente", dependencies=LOGIN)
 def atualizar(cpf: str, dados: ClienteIn, db=Depends(get_db)):
     with db.cursor() as cur:
         cur.execute("SELECT 1 FROM cliente WHERE CPF = %s", (cpf,))
@@ -70,7 +73,8 @@ def atualizar(cpf: str, dados: ClienteIn, db=Depends(get_db)):
     return {"cpf": cpf, **dados.model_dump()}
 
 
-@router.delete("/{cpf}", status_code=status.HTTP_204_NO_CONTENT, summary="Remove um cliente")
+@router.delete("/{cpf}", status_code=status.HTTP_204_NO_CONTENT, summary="Remove um cliente",
+               dependencies=LOGIN)
 def remover(cpf: str, db=Depends(get_db)):
     """Remove um cliente. Se ele ainda tiver animais ou telefones, retorna 409:
     a chave estrangeira do banco impede deixar registros órfãos."""

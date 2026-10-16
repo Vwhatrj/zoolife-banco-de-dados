@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.auth import usuario_atual
 from app.db import get_db
 from app.schemas import Animal, AnimalIn
 
 router = APIRouter(prefix="/animais", tags=["Animais"])
+LOGIN = [Depends(usuario_atual)]  # rotas de escrita exigem token
 
 COLUNAS = """Animal_ID AS id, Nome AS nome, Especie AS especie, Raca AS raca,
              MicroChip AS microchip, Sexo AS sexo, Dono_CPF AS dono_cpf"""
@@ -33,7 +35,8 @@ def obter(animal_id: int, db=Depends(get_db)):
     return animal
 
 
-@router.post("", response_model=Animal, status_code=status.HTTP_201_CREATED, summary="Cadastra um animal")
+@router.post("", response_model=Animal, status_code=status.HTTP_201_CREATED, summary="Cadastra um animal",
+             dependencies=LOGIN)
 def criar(dados: AnimalIn, db=Depends(get_db)):
     """Cadastra um animal. Se o `dono_cpf` não existir, retorna 409 (chave estrangeira)."""
     with db.cursor() as cur:

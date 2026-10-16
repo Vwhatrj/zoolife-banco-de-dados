@@ -2,7 +2,7 @@
 
 Modelagem e implementação, em MariaDB, do banco de dados de uma rede de clínicas veterinárias com matriz e filiais. O banco `clinica` tem 12 tabelas e cobre clientes e seus animais, veterinários, funcionários, consultas, exames, receitas, estoque de medicamentos, vacinação e pagamentos.
 
-Sobre o banco roda uma **API REST em Python (FastAPI)**, na pasta [`api/`](api/README.md), com documentação interativa e testes automatizados.
+Sobre o banco roda uma **API REST em Python (FastAPI)**, na pasta [`api/`](api/README.md), com login por token JWT, documentação interativa e testes automatizados.
 
 ## Sobre o projeto
 
@@ -15,7 +15,7 @@ A API REST da pasta `api/` é uma extensão individual, feita depois da discipli
 - **MariaDB 13.0** (versão em que os scripts foram testados; o exemplo com Docker usa a mesma versão)
 - **SQL**: DDL (`CREATE TABLE`, chaves primárias e estrangeiras, `UNIQUE`, `ENUM`) e DML (`INSERT`, `SELECT`, `UPDATE`, `DELETE`)
 - **Docker**, opcional, para subir o banco sem instalar nada
-- **Python 3.13 + FastAPI + PyMySQL**, para a API REST, com testes em **pytest**
+- **Python 3.13 + FastAPI + PyMySQL**, para a API REST, com login **JWT** e testes em **pytest**
 
 ## Estrutura do repositório
 
@@ -26,7 +26,8 @@ zoolife-banco-de-dados/
 ├── sql/
 │   ├── 01_schema.sql          # cria o banco `clinica` e as 12 tabelas
 │   ├── 02_dados_exemplo.sql   # 10 registros fictícios por tabela
-│   └── 03_consultas.sql       # SELECT, JOIN, agregações, UPDATE e DELETE
+│   ├── 03_consultas.sql       # SELECT, JOIN, agregações, UPDATE e DELETE
+│   └── 04_usuarios_api.sql    # tabela de login da API (fora do modelo da clínica)
 └── docs/
     ├── minimundo.md           # descrição do negócio e regras
     ├── dicionario-de-dados.md # tabelas, campos, tipos e restrições

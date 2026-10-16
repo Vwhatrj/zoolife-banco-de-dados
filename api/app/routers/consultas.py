@@ -2,10 +2,12 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.auth import usuario_atual
 from app.db import get_db
 from app.schemas import Consulta, ConsultaDetalhe, ConsultaIn
 
 router = APIRouter(prefix="/consultas", tags=["Consultas"])
+LOGIN = [Depends(usuario_atual)]  # rotas de escrita exigem token
 
 # A consulta guarda só os IDs/CPFs; os JOINs trazem os nomes do animal,
 # do tutor e do veterinário.
@@ -67,7 +69,8 @@ def obter(consulta_id: int, db=Depends(get_db)):
     return consulta
 
 
-@router.post("", response_model=Consulta, status_code=status.HTTP_201_CREATED, summary="Agenda uma consulta")
+@router.post("", response_model=Consulta, status_code=status.HTTP_201_CREATED, summary="Agenda uma consulta",
+             dependencies=LOGIN)
 def criar(dados: ConsultaIn, db=Depends(get_db)):
     """Agenda uma consulta. Animal ou veterinário inexistente retorna 409."""
     with db.cursor() as cur:
